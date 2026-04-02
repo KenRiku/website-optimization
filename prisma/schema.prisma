@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  sites Site[]
+}
+
+model Site {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  url         String
+  scriptToken String   @unique @default(cuid())
+  createdAt   DateTime @default(now())
+
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events        Event[]
+  aiSuggestions AiSuggestion[]
+  abTests       AbTest[]
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  siteId    String
+  pageUrl   String
+  eventType String
+  metadata  Json?
+  sessionId String
+  timestamp DateTime @default(now())
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, timestamp])
+  @@index([siteId, pageUrl])
+}
+
+model AiSuggestion {
+  id                String   @id @default(cuid())
+  siteId            String
+  pageUrl           String
+  originalContent   String
+  suggestedHeadline String
+  suggestedCta      String
+  reasoning         String
+  createdAt         DateTime @default(now())
+
+  site    Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  abTests AbTest[]
+}
+
+model AbTest {
+  id                  String    @id @default(cuid())
+  siteId              String
+  suggestionId        String
+  name                String
+  status              String    @default("draft")
+  variantALabel       String    @default("Original")
+  variantBLabel       String    @default("Variant B")
+  variantAConversions Int       @default(0)
+  variantBConversions Int       @default(0)
+  variantASessions    Int       @default(0)
+  variantBSessions    Int       @default(0)
+  startedAt           DateTime?
+  completedAt         DateTime?
+  createdAt           DateTime  @default(now())
+
+  site       Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  suggestion AiSuggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+}

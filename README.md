@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Clickward — Automated Website Optimization
 
-## Getting Started
+Drop in one script tag. AI finds where visitors drop off, writes better headlines and CTAs, and A/B tests them automatically — so your site converts more while you sleep.
 
-First, run the development server:
+## What it does
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Tracking**: A lightweight (< 5KB) vanilla JS snippet records page views, clicks, and scroll depth
+- **Analytics**: Dashboard shows visitor behavior per page — total events, unique sessions, top pages
+- **AI Suggestions**: Enter any page URL; Claude analyzes the content and generates 2 optimized headline + CTA variants with reasoning
+- **A/B Tests**: Create a test from any suggestion, track conversion rates for Variant A vs B, see statistical significance with a chi-squared test
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Running locally
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone and install**
+   ```bash
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   # Fill in DATABASE_URL, AUTH_SECRET, ANTHROPIC_API_KEY
+   ```
 
-## Learn More
+3. **Run database migrations**
+   ```bash
+   npx prisma migrate dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. **Start the dev server**
+   ```bash
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Open [http://localhost:3000](http://localhost:3000)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploying to Vercel
 
-## Deploy on Vercel
+1. Push code to GitHub
+2. Connect repo in Vercel dashboard
+3. Add environment variables:
+   - `DATABASE_URL` — Neon PostgreSQL connection string
+   - `AUTH_SECRET` — Random 32+ char secret (generate with `openssl rand -base64 32`)
+   - `NEXTAUTH_URL` — Your production URL (e.g. `https://yourapp.vercel.app`)
+   - `ANTHROPIC_API_KEY` — Your Anthropic API key
+4. Set build command: `prisma migrate deploy && next build`
+5. Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Environment Variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | PostgreSQL connection string (Neon recommended) |
+| `AUTH_SECRET` | Secret for NextAuth session encryption |
+| `NEXTAUTH_URL` | Full URL of your app (required in production) |
+| `ANTHROPIC_API_KEY` | API key for Claude AI (generates suggestions) |
